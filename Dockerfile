@@ -10,6 +10,8 @@ RUN dnf install -y --setopt=tsflags=nodocs vim-enhanced less
 RUN dnf install -y --setopt=tsflags=nodocs procps-ng
 RUN dnf install -y --setopt=tsflags=nodocs hostname
 RUN dnf install -y --setopt=tsflags=nodocs sudo
+# php mysql driver module
+RUN dnf install -y --setopt=tsflags=nodocs php-mysqlnd
 # RUN dnf clean all
 RUN truncate -s 0 /etc/my.cnf.d/auth_gssapi.cnf
 # on requirements on mariadb passwords
