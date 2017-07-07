@@ -2,6 +2,7 @@
 
 set -e
 
+# TODO replace by sudo
 function run_as {
     if [ $# -lt 3 ] ; then 
         echo too few arguments \'$*\' >&2
@@ -54,7 +55,13 @@ if [ ! -d $MARIADB_DATADIR ] || [ ! "$(ls -A $MARIADB_DATADIR )" ] ; then
     run_as mysql mysql /usr/libexec/mysqld &
     echo mariadb started
     wait_for_mysql
-    echo mariadb will be terminated
+
+    mysql <<EOF
+        CREATE USER wp;
+        GRANT ALL ON *.* TO wp@'%' IDENTIFIED BY '${DB_PASSWORD}';
+        FLUSH PRIVILEGES;
+EOF
+
 #     /usr/bin/mysql_secure_installation <<EOF
 
 # y
@@ -67,6 +74,7 @@ if [ ! -d $MARIADB_DATADIR ] || [ ! "$(ls -A $MARIADB_DATADIR )" ] ; then
 # EOF
 
     # mysqladmin -p${DB_PASSWORD} shutdown
+    echo mariadb will be terminated
     mysqladmin shutdown
 else
     echo database already initialized
