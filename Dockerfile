@@ -1,4 +1,8 @@
-# use: sudo docker run -it --rm -p 8080:80
+# use: sudo docker run -it --rm -p 8080:80 -p 3306:3306 -e DB_PASSWORD=a -v ~/tmp/wp/html:/var/www/html:z -v ~/tmp/wp/db:/var/lib/mysql:z
+# make sure that dirs mounted to
+#  * /var/www/html
+#  * /var/lib/mysql
+# have rw addess for others
 
 FROM fedora:25
 

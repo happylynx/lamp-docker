@@ -56,9 +56,11 @@ if [ ! -d $MARIADB_DATADIR ] || [ ! "$(ls -A $MARIADB_DATADIR )" ] ; then
     echo mariadb started
     wait_for_mysql
 
+    # mariadb treats '%' and localhost hosts differently
     mysql <<EOF
         CREATE USER wp;
         GRANT ALL ON *.* TO wp@'%' IDENTIFIED BY '${DB_PASSWORD}';
+        GRANT ALL ON *.* TO wp@localhost IDENTIFIED BY '${DB_PASSWORD}';
         FLUSH PRIVILEGES;
 EOF
 
