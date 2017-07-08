@@ -33,6 +33,8 @@ function check_volume_attached {
     fi
 }
 
+# TODO check volume rights
+
 check_volume_attached /var/www/html
 check_volume_attached /var/lib/mysql
 
@@ -49,6 +51,11 @@ if [ ! -d $MARIADB_DATADIR ] || [ ! "$(ls -A $MARIADB_DATADIR )" ] ; then
         exit 2
     fi
 
+    if [ -z ${DB_USER} ] ; then # if varialbe DB_USER is empty
+        echo variable DB_USER is empty >&2
+        exit 2
+    fi
+
     [ "$(pgrep mysqld)" ] && mysqladmin shutdown
 
     run_as mysql mysql /usr/bin/mysql_install_db --datadir=$MARIADB_DATADIR
@@ -58,11 +65,15 @@ if [ ! -d $MARIADB_DATADIR ] || [ ! "$(ls -A $MARIADB_DATADIR )" ] ; then
 
     # mariadb treats '%' and localhost hosts differently
     mysql <<EOF
-        CREATE USER wp;
-        GRANT ALL ON *.* TO wp@'%' IDENTIFIED BY '${DB_PASSWORD}';
-        GRANT ALL ON *.* TO wp@localhost IDENTIFIED BY '${DB_PASSWORD}';
+        CREATE USER ${DB_USER};
+        GRANT ALL ON *.* TO '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASSWORD}';
+        GRANT ALL ON *.* TO '${DB_USER}'@localhost IDENTIFIED BY '${DB_PASSWORD}';
         FLUSH PRIVILEGES;
 EOF
+
+    if [ $DB_NAME ] ; then
+        mysql <<< "CREATE DATABASE IF NOT EXISTS ${DB_NAME}"
+    fi
 
 #     /usr/bin/mysql_secure_installation <<EOF
 
